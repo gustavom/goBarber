@@ -3,6 +3,8 @@ import { Router } from 'express';
 import UserController from './app/controllers/UserController';
 import SessionController from './app/controllers/SessionController';
 
+import authMiddleware from './app/middlewares/auth';
+
 const routes = new Router();
 // rota para teste
 /* routes.get('/', async (req, res) => {
@@ -16,5 +18,9 @@ const routes = new Router();
 
 routes.post('/users', UserController.store);
 routes.post('/sessions', SessionController.store);
+
+routes.use(authMiddleware); // diz para todas as rotas abaixo usarem o middleware. As rotas acima, não vão usar.
+
+routes.put('/users', UserController.update);
 
 export default routes;
