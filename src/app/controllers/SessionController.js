@@ -8,6 +8,20 @@ class SessionController {
     if (!user) {
       res.status(400).json({ error: 'User not found.' });
     }
+    if (!(await user.checkPassword(password))) {
+      res.status(400).json({ error: 'Password does not match.' });
+    }
+    const { id, name } = user;
+    return res.json({
+      user: {
+        id,
+        name,
+        email,
+      },
+      token: jwt.sign({ id }, 'd307bd3af3e617baa8b923e3de383d2c', {
+        expiresIn: '7d',
+      }),
+    });
   }
 }
 
