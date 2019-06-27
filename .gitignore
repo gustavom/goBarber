@@ -1,3 +1,5 @@
 node_modules
 package-lock.json
 auth.js
+!src/app/middlewares/auth.js
+#/config/auth.js
