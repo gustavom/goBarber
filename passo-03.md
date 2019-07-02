@@ -51,3 +51,129 @@ routes.post('/files', upload.single('file'), (req, res) => {
   return res.json({ ok: true });
 });
 ```
+
+### Avatar do usuário
+1 - importe:
+```js
+import FileController from './app/controllers/FileController';
+```
+2 - no arquivo de rotas, modifique a nossa rota
+```js
+routes.post('/files', upload.single('file'), FileController.store);
+```
+3 - Crie o arquivo `FileController.js`:
+```sh
+touch src/app/controllers/FileController.js
+```
+4 - Adicione no filecontroller:
+```js
+class FileController {
+  async store(req, res) {
+    return res.json(req.file);
+  }
+}
+
+export default new FileController();
+
+```
+
+5 - Criando a migration para a tabela de files:
+```sh
+npx sequelize migration:create --name=create-files
+```
+
+6 - No arquivo de migration, adicione:
+```js
+module.exports = {
+  up: (queryInterface, Sequelize) => {
+    return queryInterface.createTable('files', {
+      id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      path: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      created_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updated_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
+  },
+
+  down: queryInterface => {
+    return queryInterface.dropTable('files');
+  },
+};
+
+```
+7 - Faça a criação da tabela no banco de dados:
+```sh
+npx sequelize db:migrate
+```
+8 - Crie o model de files:
+```sh
+touch src/app/models/File.js
+```
+
+9 - No model, adicione:
+```js
+import Sequelize, { Model } from 'sequelize';
+
+class File extends Model {
+  static init(sequelize) {
+    super.init(
+      {
+        name: Sequelize.STRING,
+        path: Sequelize.STRING,
+      },
+      {
+        sequelize,
+      }
+    );
+    return this;
+  }
+}
+
+export default File;
+
+```
+
+10 - Importe o model no `src/database/index.js` e atualize o array de models
+```js
+import File from '../app/models/File';
+```
+```js
+const models = [User, File];
+```
+
+11 - Adicione o model no `FileController.js`:
+```js
+import File from '../models/File';
+
+class FileController {
+  async store(req, res) {
+    const { originalname: name, filename: path } = req.file;
+
+    const file = await File.create({
+      name,
+      path,
+    });
+    return res.json(file);
+  }
+}
+
+export default new FileController();
+```
