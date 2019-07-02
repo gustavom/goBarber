@@ -177,3 +177,69 @@ class FileController {
 
 export default new FileController();
 ```
+
+12 - Criando a migration para integrar a tabela de files com users:
+```sh
+npx sequelize migration:create --name=add-avatar-field-to-users
+```
+
+13 - Na nova migration, adicione:
+```js
+module.exports = {
+  up: (queryInterface, Sequelize) => {
+    return queryInterface.addColumn('users', 'avatar_id', {
+      type: Sequelize.INTEGER,
+      references: { model: 'files', key: 'id' },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
+      allowNull: true,
+    });
+  },
+
+  down: queryInterface => {
+    return queryInterface.removeColumn('users', 'avatar_id');
+  },
+};
+```
+
+14 - Rode a migration:
+```sh
+npx sequelize db:migrate
+```
+
+15 - No model de usuário, crie o método estático para a associação:
+```js
+// adicione acime do checkpassword
+static associate(models) {
+    this.belongsTo(models.File, { foreignKey: 'avatar_id' });
+  }
+```
+
+16 - No index de database `src/database/index.js`, atualize:
+```js
+import Sequelize from 'sequelize';
+
+import User from '../app/models/User';
+import File from '../app/models/File';
+
+import databaseConfig from '../config/database';
+
+const models = [User, File];
+
+class Database {
+  constructor() {
+    this.init();
+  }
+
+  init() {
+    this.connection = new Sequelize(databaseConfig);
+
+    models
+      .map(model => model.init(this.connection))
+      .map(model => model.associate && model.associate(this.connection.models));
+  }
+}
+
+export default new Database();
+
+```
