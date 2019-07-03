@@ -334,3 +334,101 @@ middlewares() {
 ``` 
 
 ## Migration e model de agendamento
+1 - Crie a migration de agendamento
+```sh
+npx sequelize migration:create --name=create-appointments
+```
+2 - Adicione na migration:
+```js
+module.exports = {
+  up: (queryInterface, Sequelize) => {
+    return queryInterface.createTable('appointments', {
+      id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      date: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+      user_id: {
+        type: Sequelize.INTEGER,
+        references: { model: 'users', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        allowNull: true,
+      },
+      provider_id: {
+        type: Sequelize.INTEGER,
+        references: { model: 'users', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        allowNull: true,
+      },
+      canceled_at: {
+        type: Sequelize.DATE,
+      },
+      created_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updated_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+    });
+  },
+
+  down: queryInterface => {
+    return queryInterface.dropTable('appointments');
+  },
+};
+```
+3 - Crie a tabela:
+```sh
+npx sequelize db:migrate
+```
+4 - Crie o model de appointments:
+```sh
+touch src/app/models/Appointments.js
+```
+5 - No model, adicione:
+```js
+import Sequelize, { Model } from 'sequelize';
+
+class Appointments extends Model {
+  static init(sequelize) {
+    super.init(
+      {
+        date: Sequelize.DATE,
+        canceled_at: Sequelize.DATE,
+      },
+      {
+        sequelize,
+      }
+    );
+    return this;
+  }
+
+  static associate(models) {
+    this.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+    this.belongsTo(models.User, { foreignKey: 'provider_id', as: 'provider' });
+  }
+}
+
+export default Appointments;
+
+```
+
+6 - Atualize o arquivo `src/database/index.js`:
+```js
+// ... import File from '../app/models/File';
+import Appointments from '../app/models/Appointments';
+
+import databaseConfig from '../config/database';
+
+const models = [User, File, Appointments];
+// ...
+``` 
