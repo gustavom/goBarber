@@ -613,3 +613,101 @@ async index(req, res) {
 ```
 
 ## Páginação
+
+1 - Inicialmente, atualize o método index em appointment controller:
+```js
+async index(req, res) {
+    const { page = 1 } = req.query;
+
+    const appointments = await Appointment.findAll({
+      where: { user_id: req.userId, canceled_at: null },
+      order: ['date'],
+      attributes: ['id', 'date'],
+      limit: 20,
+      offset: (page - 1) * 20,
+      include: [
+        {
+          model: User,
+          as: 'provider',
+          attributes: ['id', 'name'],
+          include: [
+            {
+              model: File,
+              as: 'avatar',
+              attributes: ['id', 'path', 'url'],
+            },
+          ],
+        },
+      ],
+    });
+
+    return res.json(appointments);
+  }
+```
+
+## Listando agenda do prestador
+1 - Crie o controler de schedule
+```sh
+touch src/app/controllers/ScheduleController.js
+```
+```js
+import Appointment from '../models/Appointments';
+
+class ScheduleController {
+  async index(req, res) {
+    return res.json();
+  }
+}
+
+export default new ScheduleController();
+
+```
+
+2 - Crie a rota
+```js
+import ScheduleController from './app/controllers/ScheduleController';
+
+// ...
+
+routes.get('/schedule', ScheduleController.index);
+```
+
+3 - Atualize o controller de schedule
+```js
+import { startOfDay, endOfDay, parseISO } from 'date-fns';
+import { Op } from 'sequelize';
+
+import Appointment from '../models/Appointments';
+import User from '../models/User';
+
+class ScheduleController {
+  async index(req, res) {
+    const checkUserProvider = await User.findOne({
+      where: { id: req.userId, provider: true },
+    });
+    if (!checkUserProvider) {
+      return res.status(401).json({ error: 'User not provider' });
+    }
+
+    const { date } = req.query;
+
+    const parsedDate = parseISO(date);
+
+    const appointments = await Appointment.findAll({
+      where: {
+        provider_id: req.userId,
+        canceled_at: null,
+        date: {
+          [Op.between]: [startOfDay(parsedDate), endOfDay(parsedDate)],
+        },
+      },
+      order: ['date'],
+    });
+
+    return res.json(appointments);
+  }
+}
+
+export default new ScheduleController();
+
+```
