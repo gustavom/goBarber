@@ -1,4 +1,5 @@
-### Fazendo uploads de arquivo
+## Fazendo uploads de arquivo
+---
 1 - Para realizar o upload de arquivos, instale o multer:
 ```sh
 npm install multer
@@ -52,7 +53,8 @@ routes.post('/files', upload.single('file'), (req, res) => {
 });
 ```
 
-### Avatar do usuário
+## Avatar do usuário
+---
 1 - importe:
 ```js
 import FileController from './app/controllers/FileController';
@@ -244,7 +246,8 @@ export default new Database();
 
 ```
 
-### Listando os prestadores de serviço
+## Listando os prestadores de serviço
+---
 Vamos criar a lista de prestadores de serviço.
 
 1 - Crie o controller para Providers:
@@ -329,3 +332,5 @@ middlewares() {
     );
   }
 ``` 
+
+## Migration e model de agendamento
