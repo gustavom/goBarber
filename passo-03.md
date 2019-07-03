@@ -243,3 +243,89 @@ class Database {
 export default new Database();
 
 ```
+
+### Listando os prestadores de serviço
+Vamos criar a lista de prestadores de serviço.
+
+1 - Crie o controller para Providers:
+```sh
+touch src/app/controllers/ProviderController.js
+```
+2 - No arquivo `ProviderController.js`, crie a classe, com o método index para listar os providers:
+```js
+import User from '../models/User';
+import File from '../models/File';
+
+class ProviderController {
+  async index(req, res) {
+    const providers = await User.findAll({
+      where: { provider: true },
+      attributes: ['id', 'name', 'email', 'avatar_id'],
+      include: [
+        { model: File, as: 'avatar', attributes: ['name', 'path', 'url'] },
+      ],
+    });
+    return res.json(providers);
+  }
+}
+
+export default new ProviderController();
+```
+
+3 - Importe o novo controller no arquivo de rotas:
+```js
+import ProviderController from './app/controllers/ProviderController';
+```
+
+4 - No arquivo de rotas, crie a nova rota:
+```js
+routes.get('/providers', ProviderController.index);
+```
+
+5 - No arquivo `src/app/models/File.js`, adicione o campo virtual URL:
+```js
+import Sequelize, { Model } from 'sequelize';
+
+class File extends Model {
+  static init(sequelize) {
+    super.init(
+      {
+        name: Sequelize.STRING,
+        path: Sequelize.STRING,
+        url: {
+          type: Sequelize.VIRTUAL,
+          get() {
+            return `http://localhost:3333/files/${this.path}`;
+          },
+        },
+      },
+      {
+        sequelize,
+      }
+    );
+    return this;
+  }
+}
+
+export default File;
+
+```
+
+
+6 - No arquivo `src/app/models/User.js`, atualize o 'associate':
+```js
+static associate(models) {
+    this.belongsTo(models.File, { foreignKey: 'avatar_id', as: 'avatar' });
+  }
+``` 
+
+7 - Servindo os arquivos estaticos. No arquivo `src/app.js`, nos middlewares, adicione:
+```js
+middlewares() {
+    this.server.use(express.json());
+    this.server.use(
+      '/files',
+      express.static(path.resolve(__dirname, '..', 'tmp', 'uploads'))
+    );
+  }
+``` 
