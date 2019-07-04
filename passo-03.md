@@ -711,3 +711,26 @@ class ScheduleController {
 export default new ScheduleController();
 
 ```
+
+## MongoDB
+1 - Instale o mongoose
+```sh
+npm install mongoose
+```
+
+2 - Em `src/database/index.js`:
+```js
+import mongoose from 'mongoose';
+
+// ...
+init(){...}
+mongo() {
+    this.mongoConnection = mongoose.connect(
+      'mongodb+srv://admin:admin@cluster0-doxac.mongodb.net/test?retryWrites=true&w=majority',
+      {
+        useNewUrlParser: true,
+        useFindAndModify: true,
+      }
+    );
+  }
+```
