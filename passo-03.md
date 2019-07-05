@@ -971,3 +971,32 @@ class AppointmentController {
 export default new AppointmentController();
 
 ```
+
+## Notificações por e-mail
+1 - install
+```js
+npm install nodemailer
+```
+2 - mail.js
+```sh
+touch src/config/mail.js
+```
+```js
+export default {
+  host: 'smtp.mailtrap.io',
+  port: 2525,
+  secure: false,
+  auth: {
+    user: '7bb18b598067ab',
+    pass: '85951a97661a58',
+  },
+  default: {
+    from: 'App GoBarber <noreply@gobarber.com>',
+  },
+};
+```
+
+3 - libs
+```sh
+touch src/lib/Mail.js
+```
