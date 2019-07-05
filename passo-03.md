@@ -734,3 +734,64 @@ mongo() {
     );
   }
 ```
+
+3 - Criando schemas
+```sh
+mkdir src/app/schemas
+touch src/app/schemas/Notification.js
+```
+
+```js
+// Notification js
+import mongoose from 'mongoose';
+
+const NotificationSchema = new mongoose.Schema(
+  {
+    content: {
+      type: String,
+      required: true,
+    },
+    user: {
+      type: Number,
+      required: true,
+    },
+    read: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export default mongoose.model('Notification', NotificationSchema);
+
+```
+
+4 - update no Appointment Controller:
+```js
+import { startOfHour, parseISO, isBefore, format } from 'date-fns';
+import pt from 'date-fns/locale/pt';
+// ...
+import Notification from '../schemas/Notification';
+
+/**
+     * Notify provider
+     */
+
+    const user = await User.findByPk(req.userId);
+    const formattedDate = format(
+      hourStart,
+      "'dia' dd 'de' MMMM', às' H:mm'h'",
+      { locale: pt }
+    );
+
+    await Notification.create({
+      content: `Novo agendamento de ${user.name} para o ${formattedDate}`,
+      user: provider_id,
+    });
+    // ...
+    // return res.json(appointment);`
+```
