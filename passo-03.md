@@ -1000,3 +1000,9 @@ export default {
 ```sh
 touch src/lib/Mail.js
 ```
+
+## Template engine
+```sh
+# instalar handlebars
+npm install express-handlebars nodemailer-express-handlebars
+```
