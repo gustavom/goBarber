@@ -1006,3 +1006,14 @@ touch src/lib/Mail.js
 # instalar handlebars
 npm install express-handlebars nodemailer-express-handlebars
 ```
+
+## Redis
+```sh
+docker --name redisbarber -p 6379:6379 -d -t redis:alpine
+docker ps -a
+```
+
+## bee queue
+```sh
+npm install bee-queue
+```
