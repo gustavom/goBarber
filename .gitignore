@@ -4,3 +4,4 @@ auth.js
 !src/app/middlewares/auth.js
 #/config/auth.js
 tmp/uploads/
+.env
