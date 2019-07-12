@@ -1017,3 +1017,12 @@ docker ps -a
 ```sh
 npm install bee-queue
 ```
+## sentry
+```sh
+npm install @sentry/node@5.5.0
+npm install express-async-errors
+```
+## youch
+```sh
+npm install youch
+```
